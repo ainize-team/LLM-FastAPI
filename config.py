@@ -1,5 +1,6 @@
-from enums import EnvEnum
 from pydantic import BaseSettings
+
+from enums import EnvEnum
 
 
 class ServerSettings(BaseSettings):
