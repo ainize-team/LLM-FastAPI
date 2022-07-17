@@ -9,4 +9,9 @@ class ServerSettings(BaseSettings):
     app_env: EnvEnum = EnvEnum.DEV
 
 
+class ModelSettings(BaseSettings):
+    model_name_or_path: str = "/model"
+
+
 server_settings = ServerSettings()
+model_settings = ModelSettings()
