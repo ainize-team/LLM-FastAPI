@@ -16,9 +16,22 @@ def _load_model(app: FastAPI) -> None:
     )
 
 
+def _shutdown_model(app: FastAPI) -> None:
+    del app.state.model
+    del app.state.tokenizer
+
+
 def start_app_handler(app: FastAPI) -> Callable:
     def startup() -> None:
         logger.info("Running App Start Handler.")
         _load_model(app)
 
     return startup
+
+
+def stop_app_handler(app: FastAPI) -> Callable:
+    def shutdown() -> None:
+        logger.info("Running App Shutdown Handler.")
+        _shutdown_model(app)
+
+    return shutdown

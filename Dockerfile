@@ -5,8 +5,8 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
 # TODO: Optimize
-COPY ./*.py /app
-COPY ./api ./app/api
-COPY ./payloads ./app/payloads
+COPY ./*.py /app/
+COPY ./api /app/api
+COPY ./payloads /app/payloads
 
 CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "0"]
