@@ -1,11 +1,10 @@
 from typing import Callable
 
 import torch
+from config import model_settings
 from fastapi import FastAPI
 from loguru import logger
 from transformers import AutoModelForCausalLM, AutoTokenizer
-
-from config import model_settings
 
 
 def _load_model(app: FastAPI) -> None:
