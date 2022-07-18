@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 
 from payloads.request import TextGenerationRequest
+from utils import clear_memory
 
 
 router = APIRouter()
@@ -21,4 +22,5 @@ def post_generation(request: Request, data: TextGenerationRequest) -> str:
         do_sample=data.do_sample,
     )
     result = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    clear_memory()
     return result[0]
