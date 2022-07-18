@@ -3,18 +3,15 @@ from typing import Callable, Dict
 import torch
 from fastapi import FastAPI
 from loguru import logger
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from config import model_settings
 
 
 def _load_model(app: FastAPI) -> None:
     model_name_or_path = model_settings.model_name_or_path
-    number_of_device = torch.cuda.device_count()
-    config = AutoConfig.from_pretrained(model_name_or_path)
-    n_layer = config.n_layer
-    quotient, remainder = divmod(n_layer, number_of_device)
     # TODO: generalize
+    number_of_device = torch.cuda.device_count()
     layer_list = [
         "transformer.word_embeddings",
         "lm_head",
@@ -91,6 +88,9 @@ def _load_model(app: FastAPI) -> None:
         "transformer.h.69",
         "transformer.ln_f",
     ]
+    n_layer = len(layer_list)
+    quotient, remainder = divmod(n_layer, number_of_device)
+
     device_map: Dict[str, int] = {}
     idx = 0
     for i in range(number_of_device):
@@ -100,6 +100,7 @@ def _load_model(app: FastAPI) -> None:
         if i >= number_of_device - remainder:
             device_map[layer_list[idx]] = i
             idx += 1
+
     logger.info(f"Device Map : {device_map}")
     app.state.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
     app.state.model = AutoModelForCausalLM.from_pretrained(
