@@ -13,26 +13,33 @@ from config import model_settings
 def _load_model(app: FastAPI) -> None:
     model_path = model_settings.model_path
     number_of_device = torch.cuda.device_count()
-    with open(os.path.join(model_path, "layer_list.json"), "r") as f:
-        layer_list = json.load(f)
-    n_layer = len(layer_list)
-    quotient, remainder = divmod(n_layer, number_of_device)
-
-    device_map: Dict[str, int] = {}
-    idx = 0
-    for i in range(number_of_device):
-        for _ in range(quotient):
-            device_map[layer_list[idx]] = i
-            idx += 1
-        if i >= number_of_device - remainder:
-            device_map[layer_list[idx]] = i
-            idx += 1
-
-    logger.info(f"Device Map : {device_map}")
     app.state.tokenizer = AutoTokenizer.from_pretrained(model_path)
-    app.state.model = AutoModelForCausalLM.from_pretrained(
-        model_path, device_map=device_map, torch_dtype=torch.bfloat16
-    )
+
+    if number_of_device > 1:
+        with open(os.path.join(model_path, "layer_list.json"), "r") as f:
+            layer_list = json.load(f)
+        n_layer = len(layer_list)
+        quotient, remainder = divmod(n_layer, number_of_device)
+
+        device_map: Dict[str, int] = {}
+        idx = 0
+        for i in range(number_of_device):
+            for _ in range(quotient):
+                device_map[layer_list[idx]] = i
+                idx += 1
+            if i >= number_of_device - remainder:
+                device_map[layer_list[idx]] = i
+                idx += 1
+
+        logger.info(f"Device Map : {device_map}")
+        app.state.model = AutoModelForCausalLM.from_pretrained(
+            model_path, device_map=device_map, torch_dtype=torch.bfloat16
+        )
+    else:
+        logger.info("Load Model to Single GPU")
+        app.state.model = AutoModelForCausalLM.from_pretrained(
+            model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
+        ).cuda()
 
 
 def _shutdown_model(app: FastAPI) -> None:
