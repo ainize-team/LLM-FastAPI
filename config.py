@@ -10,7 +10,7 @@ class ServerSettings(BaseSettings):
 
 
 class ModelSettings(BaseSettings):
-    model_name_or_path: str = "/model"
+    model_path: str = "/model"
 
 
 server_settings = ServerSettings()
