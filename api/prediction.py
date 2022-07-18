@@ -22,5 +22,7 @@ def post_generation(request: Request, data: TextGenerationRequest) -> str:
         do_sample=data.do_sample,
     )
     result = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    del generated_ids
+    del input_ids
     clear_memory()
     return result[0]
