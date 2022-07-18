@@ -13,7 +13,7 @@ from config import model_settings
 def _load_model(app: FastAPI) -> None:
     model_path = model_settings.model_path
     number_of_device = torch.cuda.device_count()
-    app.state.tokenizer = AutoTokenizer.from_pretrained(model_path)
+    app.state.tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=model_settings.use_fast_tokenizer)
 
     if number_of_device > 1:
         with open(os.path.join(model_path, "layer_list.json"), "r") as f:

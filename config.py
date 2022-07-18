@@ -11,6 +11,7 @@ class ServerSettings(BaseSettings):
 
 class ModelSettings(BaseSettings):
     model_path: str = "/model"
+    use_fast_tokenizer: bool = True
 
 
 server_settings = ServerSettings()
