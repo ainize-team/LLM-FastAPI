@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 
 from payloads.request import TextGenerationRequest
+from payloads.response import TextGenerationResponse
 from utils import clear_memory
 
 
@@ -8,21 +9,24 @@ router = APIRouter()
 
 
 @router.post("/generate")
-def post_generation(request: Request, data: TextGenerationRequest) -> str:
+def post_generation(request: Request, data: TextGenerationRequest) -> TextGenerationResponse:
     tokenizer = request.app.state.tokenizer
     model = request.app.state.model
-    input_ids = tokenizer(data.prompt, return_tensors="pt").input_ids.cuda()
-    generated_ids = model.generate(
-        input_ids,
-        max_new_tokens=data.max_tokens,
-        temperature=data.temperature,
-        top_k=data.top_k,
-        top_p=data.top_p,
-        repetition_penalty=data.repetition_penalty,
-        do_sample=data.do_sample,
-    )
+    inputs = {
+        "inputs": tokenizer(data.prompt, return_tensors="pt").input_ids.cuda(),
+        "max_new_tokens": data.max_new_tokens,
+        "do_sample": data.do_sample,
+        "early_stopping": data.early_stopping,
+        "num_beams": data.num_beams,
+        "temperature": data.temperature,
+        "top_k": data.top_k,
+        "top_p": data.top_p,
+        "no_repeat_ngram_size": data.no_repeat_ngram_size,
+        "num_return_sequences": data.num_return_sequences,
+    }
+    generated_ids = model.generate(**inputs)
     result = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    del inputs
     del generated_ids
-    del input_ids
     clear_memory()
-    return result[0]
+    return TextGenerationResponse(result=result)

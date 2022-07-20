@@ -12,6 +12,7 @@ class ServerSettings(BaseSettings):
 class ModelSettings(BaseSettings):
     model_path: str = "/model"
     use_fast_tokenizer: bool = True
+    model_max_length: int = 2048
 
 
 server_settings = ServerSettings()
