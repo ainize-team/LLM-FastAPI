@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 
 from payloads.request import TextGenerationRequest
 from payloads.response import TextGenerationResponse
@@ -24,9 +24,15 @@ def post_generation(request: Request, data: TextGenerationRequest) -> TextGenera
         "no_repeat_ngram_size": data.no_repeat_ngram_size,
         "num_return_sequences": data.num_return_sequences,
     }
-    generated_ids = model.generate(**inputs)
+    try:
+        generated_ids = model.generate(**inputs)
+    except ValueError as e:
+        raise HTTPException(422, e)
+    except Exception as e:
+        raise HTTPException(500, e)
+    finally:
+        del inputs
     result = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-    del inputs
     del generated_ids
     clear_memory()
     return TextGenerationResponse(result=result)

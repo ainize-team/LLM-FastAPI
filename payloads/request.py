@@ -30,7 +30,9 @@ class TextGenerationRequest(BaseModel):
         description="he value used to module the next token probabilities.",
     )
     top_k: int = Field(
-        default=50, description="The number of highest probability vocabulary tokens to keep for top-k-filtering."
+        default=50,
+        gt=0,
+        description="The number of highest probability vocabulary tokens to keep for top-k-filtering.",
     )
     top_p: float = Field(
         default=1.0,
