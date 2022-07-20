@@ -13,7 +13,7 @@ def post_generation(request: Request, data: TextGenerationRequest) -> TextGenera
     tokenizer = request.app.state.tokenizer
     model = request.app.state.model
     inputs = {
-        "inputs": tokenizer(data.prompt, return_tensors="pt").input_ids.cuda(),
+        "inputs": tokenizer.encode(data.prompt, return_tensors="pt").cuda(),
         "max_new_tokens": data.max_new_tokens,
         "do_sample": data.do_sample,
         "early_stopping": data.early_stopping,

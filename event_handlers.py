@@ -40,6 +40,7 @@ def _load_model(app: FastAPI) -> None:
         app.state.model = AutoModelForCausalLM.from_pretrained(
             model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
         ).cuda()
+    app.state.model.eval()
 
 
 def _shutdown_model(app: FastAPI) -> None:
