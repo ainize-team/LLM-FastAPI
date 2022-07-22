@@ -7,13 +7,13 @@ class TextGenerationRequest(BaseModel):
     prompt: str = Field(
         ...,
         min_length=1,
-        max_tokens=model_settings.model_max_length << 2,
+        max_tokens=model_settings.MODEL_MAX_LENGTH << 2,
         description="The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.",
     )
     max_new_tokens: int = Field(
         default=16,
         gt=0,
-        le=model_settings.model_max_length,
+        le=model_settings.MODEL_MAX_LENGTH,
         description="he maximum numbers of tokens to generate, ignore the current number of tokens.",
     )
     do_sample: bool = Field(
@@ -25,7 +25,9 @@ class TextGenerationRequest(BaseModel):
     )
     num_beams: int = Field(default=1, description="Number of beams for beam search. 1 means no beam search.")
     temperature: float = Field(
-        default=1.0, gt=0.0, description="he value used to module the next token probabilities.",
+        default=1.0,
+        gt=0.0,
+        description="he value used to module the next token probabilities.",
     )
     top_k: int = Field(
         default=50,

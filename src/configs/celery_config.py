@@ -2,9 +2,12 @@ from pydantic import BaseSettings
 
 
 class CeleryWorkerSettings(BaseSettings):
-    worker_name: str = "Celery Worker"
-    broker_uri: str = ""
-    backend_uri: str = ""
+    WORKER_NAME: str = "Celery Worker"
+    BROKER_URI: str = ""
+    BACKEND_URI: str = ""
+
+    class Config:
+        env_file = ".env"
 
 
 celery_worker_settings = CeleryWorkerSettings()

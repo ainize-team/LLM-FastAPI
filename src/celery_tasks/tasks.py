@@ -21,9 +21,9 @@ class PredictTask(Task):
         self.model = None
 
     def _load_model(self):
-        model_path = model_settings.model_path
+        model_path = model_settings.MODEL_PATH
         number_of_device = torch.cuda.device_count()
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=model_settings.use_fast_tokenizer)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=model_settings.USE_FAST_TOKENIZER)
 
         if number_of_device > 1:
             with open(os.path.join(model_path, "layer_list.json"), "r") as f:
