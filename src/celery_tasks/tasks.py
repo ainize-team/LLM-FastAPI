@@ -81,7 +81,7 @@ def generate(self, data: Dict) -> Union[str, Exception]:
     }
 
     try:
-        generated_ids = self.model.generate(input_ids=inputs["inputs"])
+        generated_ids = self.model.generate(**inputs)
     except ValueError as e:
         return Exception({"status_code": 422, "message": e})
     except Exception as e:
