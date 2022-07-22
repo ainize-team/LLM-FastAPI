@@ -8,3 +8,5 @@ pip-chill==1.0.1
 pre-commit==2.20.0
 transformers==4.20.1
 uvicorn==0.18.2
+python-dotenv==0.20.0
+celery==5.2.6
