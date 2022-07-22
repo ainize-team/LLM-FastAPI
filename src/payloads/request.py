@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from config import model_settings
+from configs.config import model_settings
 
 
 class TextGenerationRequest(BaseModel):
@@ -25,9 +25,7 @@ class TextGenerationRequest(BaseModel):
     )
     num_beams: int = Field(default=1, description="Number of beams for beam search. 1 means no beam search.")
     temperature: float = Field(
-        default=1.0,
-        gt=0.0,
-        description="he value used to module the next token probabilities.",
+        default=1.0, gt=0.0, description="he value used to module the next token probabilities.",
     )
     top_k: int = Field(
         default=50,
