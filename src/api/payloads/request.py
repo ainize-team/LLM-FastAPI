@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from configs.config import model_settings
+from ..configs.config import model_settings
 
 
 class TextGenerationRequest(BaseModel):

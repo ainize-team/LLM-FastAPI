@@ -7,9 +7,9 @@ from celery import Task
 from loguru import logger
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from configs.config import model_settings
 from utils import clear_memory
 
+from .configs.config import model_settings
 from .worker import app
 
 
@@ -24,7 +24,6 @@ class PredictTask(Task):
         model_path = model_settings.MODEL_PATH
         number_of_device = torch.cuda.device_count()
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=model_settings.USE_FAST_TOKENIZER)
-
         if number_of_device > 1:
             with open(os.path.join(model_path, "layer_list.json"), "r") as f:
                 layer_list = json.load(f)
@@ -42,9 +41,7 @@ class PredictTask(Task):
                     idx += 1
 
             logger.info(f"Device Map : {device_map}")
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_path, device_map=device_map, torch_dtype=torch.bfloat16
-            )
+            self.model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.bfloat16)
         else:
             logger.info("Load Model to Single GPU")
             self.model = AutoModelForCausalLM.from_pretrained(

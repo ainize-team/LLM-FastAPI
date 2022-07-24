@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Request
 
 from celery_tasks.tasks import generate
-from payloads.request import TextGenerationRequest
-from payloads.response import AsyncTaskResponse
+
+from ..payloads.request import TextGenerationRequest
+from ..payloads.response import AsyncTaskResponse
 
 
 router = APIRouter()

@@ -1,6 +1,6 @@
 from celery import Celery
 
-from configs.celery_config import celery_worker_settings
+from .configs.config import celery_worker_settings
 
 
 app = Celery(
