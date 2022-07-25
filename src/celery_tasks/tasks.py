@@ -41,7 +41,9 @@ class PredictTask(Task):
                     idx += 1
 
             logger.info(f"Device Map : {device_map}")
-            self.model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.bfloat16)
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_path, device_map=device_map, torch_dtype=torch.bfloat16
+            ).cuda()
         else:
             logger.info("Load Model to Single GPU")
             self.model = AutoModelForCausalLM.from_pretrained(
@@ -80,9 +82,9 @@ def generate(self, data: Dict) -> Union[str, Exception]:
     try:
         generated_ids = self.model.generate(**inputs)
     except ValueError as e:
-        return Exception({"status_code": 422, "message": e})
+        return {"status_code": 422, "message": e}
     except Exception as e:
-        return Exception({"status_code": 500, "message": e})
+        return {"status_code": 500, "message": e}
     finally:
         del inputs
     result = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
