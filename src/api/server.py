@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 
-from enums import EnvEnum
-
 from .configs.config import server_settings
+from .enums import EnvEnum
 from .event_handlers import start_app_handler, stop_app_handler
 from .router import prediction
 
