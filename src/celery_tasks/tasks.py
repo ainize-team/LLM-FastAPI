@@ -1,73 +1,31 @@
-import json
-import os
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 import torch
-from celery import Task
+from celery.signals import celeryd_init
 from loguru import logger
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-from utils import clear_memory
 
 from .configs.config import model_settings
+from .ml_model import LargeLanguageModel
+from .utils import clear_memory
 from .worker import app
 
 
-class PredictTask(Task):
-    def __init__(self):
-        super().__init__()
-        self.device = None
-        self.tokenizer = None
-        self.model = None
-
-    def _load_model(self):
-        model_path = model_settings.MODEL_PATH
-        number_of_device = torch.cuda.device_count()
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=model_settings.USE_FAST_TOKENIZER)
-        if number_of_device > 1:
-            with open(os.path.join(model_path, "layer_list.json"), "r") as f:
-                layer_list = json.load(f)
-            n_layer = len(layer_list)
-            quotient, remainder = divmod(n_layer, number_of_device)
-
-            device_map: Dict[str, int] = {}
-            idx = 0
-            for i in range(number_of_device):
-                for _ in range(quotient):
-                    device_map[layer_list[idx]] = i
-                    idx += 1
-                if i >= number_of_device - remainder:
-                    device_map[layer_list[idx]] = i
-                    idx += 1
-
-            logger.info(f"Device Map : {device_map}")
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_path, device_map=device_map, torch_dtype=torch.bfloat16
-            ).cuda()
-        else:
-            logger.info("Load Model to Single GPU")
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
-            ).cuda()
-        self.model.eval()
-
-    def __call__(self, *args, **kwargs):
-        """
-        Load model on first call (i.e. first task processed)
-        Avoids the need to load model on each task request
-        """
-        if not self.model:
-            logger.info("Start loading model...")
-            self._load_model()
-            logger.info("Loading model is done!")
-
-        return self.run(*args, **kwargs)
+llm = LargeLanguageModel()
 
 
-@app.task(name="generate", bind=True, base=PredictTask)
-def generate(self, data: Dict) -> Union[str, Exception]:
+@celeryd_init.connect
+def load_model(**kwargs):
+    logger.info("Start loading model...")
+    llm.load_model(model_settings.model_path, model_settings.use_fast_tokenizer)
+    logger.info("Loading model is done!")
+
+
+@app.task(name="generate")
+def generate(self, data: Dict) -> Union[List[str], Dict]:
     inputs = {
-        "inputs": self.tokenizer.encode(data["prompt"], return_tensors="pt").cuda(),
+        "inputs": llm.tokenizer.encode(data["prompt"], return_tensors="pt").cuda()
+        if torch.cuda.is_available()
+        else llm.tokenizer.encode(data["prompt"], return_tensors="pt"),
         "max_new_tokens": data["max_new_tokens"],
         "do_sample": data["do_sample"],
         "early_stopping": data["early_stopping"],
@@ -80,14 +38,14 @@ def generate(self, data: Dict) -> Union[str, Exception]:
     }
 
     try:
-        generated_ids = self.model.generate(**inputs)
+        generated_ids = llm.model.generate(**inputs)
     except ValueError as e:
-        return {"status_code": 422, "message": e}
+        return {"status_code": 422, "message": str(e)}
     except Exception as e:
-        return {"status_code": 500, "message": e}
+        return {"status_code": 500, "message": str(e)}
     finally:
         del inputs
-    result = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    result = llm.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
     del generated_ids
     clear_memory()
 
