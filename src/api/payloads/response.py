@@ -1,6 +1,8 @@
-from typing import List
+from typing import List, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from ..enums import ResponseStatusEnum
 
 
 class AsyncTaskResponse(BaseModel):
@@ -8,11 +10,5 @@ class AsyncTaskResponse(BaseModel):
 
 
 class TextGenerationResponse(BaseModel):
-    status: str = Field(
-        default="wait",
-        description="Check the result is generated. wait means the result is not ready yet.",
-    )
-    result: List[str] = Field(
-        default=[""],
-        description="If status is ok, it has the result value. Otherwise, default value.",
-    )
+    status: str = ResponseStatusEnum.PENDING.value
+    result: Union[List[str], None] = None

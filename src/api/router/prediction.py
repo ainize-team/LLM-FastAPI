@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from celery_tasks.tasks import generate
 
+from ..enums import ResponseStatusEnum
 from ..payloads.request import TextGenerationRequest
 from ..payloads.response import AsyncTaskResponse, TextGenerationResponse
 
@@ -21,9 +22,15 @@ def post_generation(request: Request, data: TextGenerationRequest) -> AsyncTaskR
 @router.get("/result/{task_id}")
 def get_result(request: Request, task_id: str) -> TextGenerationResponse:
     task = AsyncResult(task_id)
-    if not task.ready():
+    try:
+        check = task.ready()
+    except ValueError as e:
+        raise HTTPException(422, e)
+    except Exception as e:
+        raise HTTPException(500, e)
+    if not check:
         return TextGenerationResponse()
     result = task.get()
     if type(result) == Dict:
         raise HTTPException(result["status_code"], result["message"])
-    return TextGenerationResponse(status="ok", result=result)
+    return TextGenerationResponse(status=ResponseStatusEnum.COMPLETED.value, result=result)
