@@ -1,10 +1,13 @@
+from os.path import abspath, dirname, join
+
 from dotenv import load_dotenv
 from pydantic import BaseSettings
 
-from enums import EnvEnum
+from ..enums import EnvEnum
 
 
-load_dotenv()
+BASE_DIR = dirname(abspath("./"))
+load_dotenv(join(BASE_DIR, ".env"))
 
 
 class ServerSettings(BaseSettings):
@@ -17,7 +20,7 @@ class ServerSettings(BaseSettings):
 
 
 class ModelSettings(BaseSettings):
-    MODEL_PATH: str = ""
+    MODEL_PATH: str
     USE_FAST_TOKENIZER: bool = True
     MODEL_MAX_LENGTH: int = 2048
 
