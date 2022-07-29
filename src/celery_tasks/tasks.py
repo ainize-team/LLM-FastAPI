@@ -21,7 +21,7 @@ def load_model(**kwargs):
 
 
 @app.task(name="generate")
-def generate(self, data: Dict) -> Union[List[str], Dict]:
+def generate(data: Dict) -> Union[List[str], Dict]:
     inputs = {
         "inputs": llm.tokenizer.encode(data["prompt"], return_tensors="pt").cuda()
         if torch.cuda.is_available()

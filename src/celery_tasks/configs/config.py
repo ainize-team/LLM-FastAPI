@@ -8,7 +8,7 @@ class CeleryWorkerSettings(BaseSettings):
 
 
 class ModelSettings(BaseSettings):
-    model_path: str
+    model_path: str = "/model"
     use_fast_tokenizer: bool = True
     model_max_length: int = 2048
 
