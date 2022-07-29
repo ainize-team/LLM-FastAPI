@@ -1,5 +1,4 @@
 --find-links https://download.pytorch.org/whl/torch_stable.html
-accelerate==0.10.0
 black==22.3.0
 flake8==4.0.1
 isort==5.10.1

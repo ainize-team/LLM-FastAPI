@@ -1,7 +1,8 @@
-accelerate==0.10.0
+--find-links https://download.pytorch.org/whl/torch_stable.html
 celery==5.2.7
 fastapi==0.79.0
 loguru==0.6.0
 redis==4.3.4
 transformers==4.20.1
 uvicorn==0.18.2
+torch==1.12.0+cu113
