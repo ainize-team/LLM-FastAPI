@@ -6,4 +6,4 @@ COPY requirements-celery.txt requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-CMD ["celery", "-A", "celery_tasks.worker", "worker", "--loglevel==info", "--pool=solo"]
+CMD ["celery", "-A", "celery_tasks.worker", "worker", "--loglevel=info", "--pool=solo"]

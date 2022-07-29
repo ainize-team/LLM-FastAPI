@@ -20,7 +20,7 @@ def post_generation(request: Request, data: TextGenerationRequest) -> AsyncTaskR
 
 
 @router.get("/result/{task_id}")
-def get_result(request: Request, task_id: str) -> TextGenerationResponse:
+async def get_result(request: Request, task_id: str) -> TextGenerationResponse:
     task = AsyncResult(task_id)
     try:
         check = task.ready()
