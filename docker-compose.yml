@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  worker:
+    image: celery-llm
+    environment:
+      - BROKER_URI=
+      - BACKEND_URI=
+    volumes:
+      - local-path:/model
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+          device_ids: ['0','1']
+          capabilities: [gpu]
+  api:
+    image: fastapi-llm
+    environment:
+      - BROKER_URI=
+      - BACKEND_URI=
+      - APP_NAME=
+    depends_on:
+      - worker
+    ports:
+      - "{host_port}:8000"
