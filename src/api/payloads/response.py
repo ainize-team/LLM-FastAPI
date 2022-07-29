@@ -10,5 +10,5 @@ class AsyncTaskResponse(BaseModel):
 
 
 class TextGenerationResponse(BaseModel):
-    status: str = ResponseStatusEnum.PENDING.value
+    status: ResponseStatusEnum = ResponseStatusEnum.PENDING
     result: Union[List[str], None] = None

@@ -29,8 +29,8 @@ async def get_result(request: Request, task_id: str) -> TextGenerationResponse:
     except Exception as e:
         raise HTTPException(500, e)
     if not check:
-        return TextGenerationResponse()
+        return TextGenerationResponse(status=ResponseStatusEnum.ASSIGNED)
     result = task.get()
     if type(result) == Dict:
         raise HTTPException(result["status_code"], result["message"])
-    return TextGenerationResponse(status=ResponseStatusEnum.COMPLETED.value, result=result)
+    return TextGenerationResponse(status=ResponseStatusEnum.COMPLETED, result=result)
