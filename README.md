@@ -62,6 +62,7 @@ curl -X GET "http://localhost:8000/result/{task_id}"
 # src/api/enums.py
 class ResponseStatusEnum(Enum):
     PENDING: str = "pending"
+    ASSIGNED: str = "assigned"
     COMPLETED: str = "completed"
 ```
 
