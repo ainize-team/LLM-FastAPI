@@ -15,7 +15,7 @@ docker run -d --name rabbitmq -p 5672:5672 -p 8080:15672 --restart=unless-stoppe
 
 3. Running Redis using Docker
 ```
-sudo docker run --name redis -d -p 6379:6379 redis
+docker run --name redis -d -p 6379:6379 redis
 ```
 - Want to control Redis
   - `sudo apt install redis-tools` in local shell
