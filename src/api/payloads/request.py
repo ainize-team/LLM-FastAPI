@@ -1,19 +1,19 @@
 from pydantic import BaseModel, Field
 
-from ..configs.config import model_settings
+from ..config import model_settings
 
 
 class TextGenerationRequest(BaseModel):
     prompt: str = Field(
         ...,
         min_length=1,
-        max_tokens=model_settings.MODEL_MAX_LENGTH << 2,
+        max_tokens=model_settings.model_max_length << 2,
         description="The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.",
     )
     max_new_tokens: int = Field(
         default=16,
         gt=0,
-        le=model_settings.MODEL_MAX_LENGTH,
+        le=model_settings.model_max_length,
         description="he maximum numbers of tokens to generate, ignore the current number of tokens.",
     )
     do_sample: bool = Field(

@@ -4,7 +4,7 @@ import torch
 from celery.signals import celeryd_init
 from loguru import logger
 
-from .configs.config import model_settings
+from .config import model_settings
 from .ml_model import LargeLanguageModel
 from .utils import clear_memory
 from .worker import app
