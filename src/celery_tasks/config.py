@@ -1,12 +1,10 @@
 from pydantic import BaseSettings
 
-from enums import EnvEnum
 
-
-class ServerSettings(BaseSettings):
-    app_name: str = "Fast API Server"
-    app_version: str = "0.0.1"
-    app_env: EnvEnum = EnvEnum.DEV
+class CeleryWorkerSettings(BaseSettings):
+    worker_name: str = "Celery Worker"
+    broker_uri: str
+    backend_uri: str
 
 
 class ModelSettings(BaseSettings):
@@ -15,5 +13,5 @@ class ModelSettings(BaseSettings):
     model_max_length: int = 2048
 
 
-server_settings = ServerSettings()
+celery_worker_settings = CeleryWorkerSettings()
 model_settings = ModelSettings()
