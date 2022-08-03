@@ -41,4 +41,6 @@ async def get_result(request: Request, task_id: str) -> TextGenerationResponse:
     data: Dict = redis.get(task_id)
     if data is None:
         raise HTTPException(status_code=fastapi.status.HTTP_400_BAD_REQUEST, detail=f"Task ID({task_id}) not found")
+    if hasattr(data, "message"):
+        raise HTTPException(data["status_code"], data["message"])
     return TextGenerationResponse(status=data["status"], result=data["result"], updated_at=data["updated_at"])
