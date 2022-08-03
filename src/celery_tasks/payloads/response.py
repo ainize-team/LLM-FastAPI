@@ -2,7 +2,7 @@ from typing import List, Union
 
 from pydantic import BaseModel
 
-from enums import ResponseStatusEnum
+from celery_tasks.enums import ResponseStatusEnum
 
 
 class TextGenerationResponse(BaseModel):
