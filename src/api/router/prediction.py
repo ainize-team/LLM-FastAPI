@@ -1,5 +1,3 @@
-from typing import Dict
-
 from celery.result import AsyncResult
 from fastapi import APIRouter, HTTPException, Request
 
@@ -31,6 +29,6 @@ async def get_result(request: Request, task_id: str) -> TextGenerationResponse:
     if not check:
         return TextGenerationResponse(status=ResponseStatusEnum.ASSIGNED)
     result = task.get()
-    if type(result) == Dict:
+    if isinstance(result, dict):
         raise HTTPException(result["status_code"], result["message"])
     return TextGenerationResponse(status=ResponseStatusEnum.COMPLETED, result=result)
