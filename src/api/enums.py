@@ -11,3 +11,4 @@ class ResponseStatusEnum(Enum):
     PENDING: str = "pending"
     ASSIGNED: str = "assigned"
     COMPLETED: str = "completed"
+    ERROR: str = "error"

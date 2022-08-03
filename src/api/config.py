@@ -10,10 +10,22 @@ class ServerSettings(BaseSettings):
 
 
 class ModelSettings(BaseSettings):
-    model_path: str = "/model"
-    use_fast_tokenizer: bool = True
     model_max_length: int = 2048
+
+
+class RedisSettings(BaseSettings):
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_db: int = 0
+    redis_password: str = ""
+
+
+class CelerySettings(BaseSettings):
+    backend_uri: str = "setup"
+    broker_uri: str
 
 
 server_settings = ServerSettings()
 model_settings = ModelSettings()
+redis_settings = RedisSettings()
+celery_settings = CelerySettings()
