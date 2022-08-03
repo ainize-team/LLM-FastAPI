@@ -36,17 +36,25 @@ def generate(data: Dict) -> Union[List[str], Dict]:
         "no_repeat_ngram_size": data["no_repeat_ngram_size"],
         "num_return_sequences": data["num_return_sequences"],
     }
-
+    if inputs["max_new_tokens"] + inputs["inputs"].shape[-1] > model_settings.model_max_length:
+        logger.warning("too long prompt")
+        new_max_new_tokens = model_settings.model_max_length - inputs["inputs"].shape[-1]
+        if new_max_new_tokens < 0:
+            del inputs
+            return {"status_code": 422, "message": "too long prompt"}
+        else:
+            logger.warning(f"Change max_new_tokens to {new_max_new_tokens}")
+            inputs["max_new_tokens"] = new_max_new_tokens
     try:
         generated_ids = llm.model.generate(**inputs)
+        result = llm.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
     except ValueError as e:
         return {"status_code": 422, "message": str(e)}
     except Exception as e:
         return {"status_code": 500, "message": str(e)}
     finally:
         del inputs
-    result = llm.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-    del generated_ids
-    clear_memory()
+        del generated_ids
+        clear_memory()
 
     return result
