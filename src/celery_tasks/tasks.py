@@ -39,7 +39,7 @@ def generate(data: Dict) -> Union[List[str], Dict]:
     if inputs["max_new_tokens"] + inputs["inputs"].shape[-1] > model_settings.model_max_length:
         logger.warning("too long prompt")
         new_max_new_tokens = model_settings.model_max_length - inputs["inputs"].shape[-1]
-        if new_max_new_tokens < 0:
+        if new_max_new_tokens <= 0:
             del inputs
             return {"status_code": 422, "message": "too long prompt"}
         else:
