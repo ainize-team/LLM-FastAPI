@@ -44,6 +44,16 @@ def generate(task_id: str, data: Dict):
         "no_repeat_ngram_size": data["no_repeat_ngram_size"],
         "num_return_sequences": data["num_return_sequences"],
     }
+    if inputs["max_new_tokens"] + inputs["inputs"].shape[-1] > model_settings.model_max_length:
+        logger.warning("too long prompt")
+        new_max_new_tokens = model_settings.model_max_length - inputs["inputs"].shape[-1]
+        if new_max_new_tokens <= 0:
+            del inputs
+            redis.set(task_id, json.dumps({"status_code": 422, "message": "too long prompt"}))
+            return
+        else:
+            logger.warning(f"Change max_new_tokens to {new_max_new_tokens}")
+            inputs["max_new_tokens"] = new_max_new_tokens
     error_flag = False
     try:
         generated_ids = llm.model.generate(**inputs)
@@ -57,7 +67,7 @@ def generate(task_id: str, data: Dict):
         error_flag = True
     finally:
         del inputs
-    clear_memory()
+        clear_memory()
     if error_flag:
         pass
     else:
