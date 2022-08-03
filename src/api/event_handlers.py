@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from loguru import logger
 from redis import Redis
 
-from config import celery_settings, redis_settings
+from api.config import celery_settings, redis_settings
 
 
 def _setup_redis(app: FastAPI) -> None:
