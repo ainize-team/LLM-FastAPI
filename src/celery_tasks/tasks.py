@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import Dict
 
@@ -28,7 +29,7 @@ def load_model(**kwargs):
 def generate(task_id: str, data: Dict):
     now = datetime.utcnow().replace(tzinfo=pytz.utc).timestamp()
     response = TextGenerationResponse(status=ResponseStatusEnum.ASSIGNED, updated_at=now)
-    redis.set(task_id, dict(response))
+    redis.set(task_id, json.dumps(dict(response)))
     inputs = {
         "inputs": llm.tokenizer.encode(data["prompt"], return_tensors="pt").cuda()
         if torch.cuda.is_available()
@@ -49,10 +50,10 @@ def generate(task_id: str, data: Dict):
         response.result = llm.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
         del generated_ids
     except ValueError as e:
-        redis.set(task_id, {"status_code": 422, "message": str(e)})
+        redis.set(task_id, json.dumps({"status_code": 422, "message": str(e)}))
         error_flag = True
     except Exception as e:
-        redis.set(task_id, {"status_code": 500, "message": str(e)})
+        redis.set(task_id, json.dumps({"status_code": 500, "message": str(e)}))
         error_flag = True
     finally:
         del inputs
@@ -63,4 +64,4 @@ def generate(task_id: str, data: Dict):
         now = datetime.utcnow().replace(tzinfo=pytz.utc).timestamp()
         response.updated_at = now
         response.status = ResponseStatusEnum.COMPLETED
-        redis.set(task_id, dict(response))
+        redis.set(task_id, json.dumps(dict(response)))
