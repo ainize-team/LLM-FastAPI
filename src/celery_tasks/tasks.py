@@ -48,13 +48,13 @@ def generate(data: Dict) -> Union[List[str], Dict]:
     try:
         generated_ids = llm.model.generate(**inputs)
         result = llm.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+        del generated_ids
     except ValueError as e:
         return {"status_code": 422, "message": str(e)}
     except Exception as e:
         return {"status_code": 500, "message": str(e)}
     finally:
         del inputs
-        del generated_ids
         clear_memory()
 
     return result
