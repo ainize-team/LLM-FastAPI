@@ -1,5 +1,3 @@
-from typing import Dict
-
 from celery.result import AsyncResult
 from fastapi import APIRouter, HTTPException, Request
 
