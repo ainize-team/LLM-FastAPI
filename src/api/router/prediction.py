@@ -1,7 +1,6 @@
 import json
 import uuid
 from datetime import datetime
-from typing import Dict
 
 import fastapi
 import pytz
@@ -39,10 +38,9 @@ def post_generation(request: Request, data: TextGenerationRequest) -> AsyncTaskR
 @router.get("/result/{task_id}")
 async def get_result(request: Request, task_id: str) -> TextGenerationResponse:
     redis: Redis = request.app.state.redis
-    data: Dict = redis.get(task_id)
+    data = json.loads(redis.get(task_id))
     if data is None:
         raise HTTPException(status_code=fastapi.status.HTTP_400_BAD_REQUEST, detail=f"Task ID({task_id}) not found")
-    data = json.loads(data)
     if hasattr(data, "message"):
         raise HTTPException(data["status_code"], data["message"])
     return TextGenerationResponse(status=data["status"], result=data["result"], updated_at=data["updated_at"])
