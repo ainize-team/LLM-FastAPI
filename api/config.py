@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 from .enums import EnvEnum
 
@@ -15,13 +15,21 @@ class ModelSettings(BaseSettings):
 
 class RedisSettings(BaseSettings):
     redis_host: str = "localhost"
-    redis_port: int = 6379
-    redis_db: int = 0
+    redis_port: int = Field(
+        default=6379,
+        ge=0,
+        le=65535,
+    )
+    redis_db: int = Field(
+        default=0,
+        ge=0,
+        le=15,
+    )
     redis_password: str = ""
 
 
 class CelerySettings(BaseSettings):
-    backend_uri: str = "setup"
+    backend_uri: str = "Auto Generate"
     broker_uri: str
 
 
