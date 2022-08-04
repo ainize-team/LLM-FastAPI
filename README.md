@@ -1,5 +1,4 @@
 # LLM-FastAPI 
-with Celery Worker
 
 Serving Large Language Model Using FastAPI and Celery
 
@@ -7,40 +6,38 @@ Serving Large Language Model Using FastAPI and Celery
 
 ### Celery Worker
 
-1. Download LLM from huggingface and store it to your local storage.
-2. Running RabbitMQ server using Docker
-```
-docker run -d --name rabbitmq -p 5672:5672 -p 8080:15672 --restart=unless-stopped rabbitmq:3.9.21-management
-```
+- **Use Redis as backend and RabbitMQ as broker**
 
-3. Running Redis using Docker
-```
-docker run --name redis -d -p 6379:6379 redis
-```
-- Want to control Redis
-  - `sudo apt install redis-tools` in local shell
-
-
-4. build docker file
+1. build docker file
 ```
 git clone https://github.com/ainize-team/LLM-FastAPI.git
 cd LLM-FastAPI
-docker build -t celery-llm -f ./celery.Dockerfile .
-docker build -t fastapi-llm -f ./fastapi.Dockerfile .
+docker build -t fastapi-llm .
 ```
 
-5. run docker image
-```
-docker run -d --name {worker_container_name} --gpus='"device=0,1,2,3,4,5,6,7"' -e USE_FAST_TOKENIZER=False -e BROKER_URI={broker_uri} -e BACKEND_URI={backend_uri} -v {local-path}:/model celery-llm
+2. run docker image
+- **Environment Variable**
+  - `APP_NAME`= default : "Fast API Server"
+  - `REDIS_HOST`= default : "localhost"
+  - `REDIS_PORT`= default : 6379
+  - `REDIS_DB`= default : 0
+  - `REDIS_PASSWORD`= default ""
+  - `BROKER_URI`= **Essential**
+  - `NUMBER_OF_WORKERS`= default : NUM of CPU cores
 
-docker run -d --name {fastapi_container_name} -p {port}:8000 -e APP_NAME={app_name} -e BROKER_URI={broker_uri} -e BACKEND_URI={backend_uri} fastapi-llm
-```
 
-- Both containers must use same `broker_uri` and `backend_uri`
+- Must use same `broker_uri` and `backend_uri` with Worker
 - **RabbitMQ broker uri**: `ampq://<user>:<password>@<hostname>:<port>/<vhost>`
 - **Redis backend uri**: `redis://:<password>@<hostname>:<port>/<db>`
 - If you use this code in linux and same sequence of this docs, maybe hostname is `172.17.0.1`, in macOS, `host.docker.internal`
 - Radis port : 6379, RabbitMQ port : 5672
+```
+docker run -d --name {fastapi_container_name} -p {port}:8000 
+-e APP_NAME={app_name} -e BROKER_URI={broker_uri} 
+-e REDIS_HOST=<redis_hostname> -e REDIS_PORT=<redis_port> 
+-e REDIS_DB=<redis_db> -e REDIS_PASSWORD=<redis_password> 
+-e NUMBER_OF_WORKERS=<num> fastapi-llm
+```
 
 ## How to Test
 
@@ -64,9 +61,10 @@ class ResponseStatusEnum(Enum):
     PENDING: str = "pending"
     ASSIGNED: str = "assigned"
     COMPLETED: str = "completed"
+    ERROR: str = "error"
 ```
 
-- If status is `"pending"`, try again and again.
+- If status is `"assigned"`, try again and again.
 
 ### Use FastAPI docs
 
