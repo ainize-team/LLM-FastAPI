@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8080
 
-COPY ./fastapi_start.sh /app/start.sh
+COPY ./start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 CMD ./start.sh
