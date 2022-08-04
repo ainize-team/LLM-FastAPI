@@ -6,7 +6,7 @@ COPY ./requirements.txt ./requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 8000
 
 COPY ./start.sh /app/start.sh
 RUN chmod +x /app/start.sh
