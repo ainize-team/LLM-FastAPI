@@ -9,7 +9,7 @@ class StrEnum(str, Enum):
         return self.name
 
 
-class EnvEnum(Enum):
+class EnvEnum(StrEnum):
     DEV: str = "dev"
     STAGGING: str = "stagging"
     PROD: str = "prod"
