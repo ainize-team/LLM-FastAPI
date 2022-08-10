@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
-from .config import server_settings
-from .enums import EnvEnum
-from .event_handlers import start_app_handler, stop_app_handler
-from .router import prediction
+from config import server_settings
+from enums import EnvEnum
+from event_handlers import start_app_handler, stop_app_handler
+from router import prediction
 
 
 def get_app() -> FastAPI:

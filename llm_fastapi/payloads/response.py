@@ -2,7 +2,7 @@ from typing import List, Union
 
 from pydantic import BaseModel
 
-from ..enums import ResponseStatusEnum
+from enums import ResponseStatusEnum
 
 
 class AsyncTaskResponse(BaseModel):

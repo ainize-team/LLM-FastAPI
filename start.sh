@@ -3,4 +3,6 @@ if [[ ! -v NUMBER_OF_WORKERS ]]; then
     export NUMBER_OF_WORKERS=$(grep -c processor /proc/cpuinfo)
 fi
 
-uvicorn api.server:app --host 0.0.0.0 --port 8000 --workers ${NUMBER_OF_WORKERS}
+. /application_root/.venv/bin/activate
+
+gunicorn --workers ${NUMBER_OF_WORKERS} --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker server:app
