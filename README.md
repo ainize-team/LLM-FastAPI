@@ -56,8 +56,8 @@ curl -X GET "http://localhost:8000/result/{task_id}"
 - `status` is this
 
 ```python
-# src/api/enums.py
-class ResponseStatusEnum(Enum):
+# llm_fastapi/enums.py
+class ResponseStatusEnum(StrEnum):
     PENDING: str = "pending"
     ASSIGNED: str = "assigned"
     COMPLETED: str = "completed"
@@ -86,7 +86,7 @@ $ curl -X GET "http://localhost:8000/result/f1c11ed3-6b32-4ecb-9f53-c0b1910d8fcf
 ### 1. install dev package.
 
 ```shell
-pip install -r requirements-dev.txt
+poetry install
 ```
 
 ### 2. install pre-commit.

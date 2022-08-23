@@ -8,9 +8,9 @@ from celery import Celery
 from fastapi import APIRouter, HTTPException, Request
 from redis import Redis
 
-from ..enums import ResponseStatusEnum
-from ..payloads.request import TextGenerationRequest
-from ..payloads.response import AsyncTaskResponse, TextGenerationResponse
+from enums import ResponseStatusEnum
+from payloads.request import TextGenerationRequest
+from payloads.response import AsyncTaskResponse, TextGenerationResponse
 
 
 router = APIRouter()

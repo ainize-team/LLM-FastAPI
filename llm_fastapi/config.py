@@ -1,11 +1,11 @@
 from pydantic import BaseSettings, Field
 
-from .enums import EnvEnum
+from enums import EnvEnum
 
 
 class ServerSettings(BaseSettings):
     app_name: str = "Fast API Server"
-    app_version: str = "0.0.1"
+    app_version: str = "0.1.0"
     app_env: EnvEnum = EnvEnum.DEV
 
 
