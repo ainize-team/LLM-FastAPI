@@ -14,17 +14,16 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
     build-essential \
     curl \
-    && curl -sSL https://install.python-poetry.org | python3 -
+    && curl -sSL https://install.python-poetry.org | python3 - \
     && apt-get purge --auto-remove -y \
-    build-essential \
-    curl
+    build-essential
 
 WORKDIR /app
 COPY ./pyproject.toml ./pyproject.toml
 COPY ./poetry.lock ./poetry.lock
-RUN poetry install --no-dev
+RUN poetry install --only main
 
-COPY ./llm_fastapi/ /app/
+COPY ./src/ /app/
 
 EXPOSE 8000
 
