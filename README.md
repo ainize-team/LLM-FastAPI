@@ -1,22 +1,22 @@
 # LLM-FastAPI
 
-Serving Large Language Model Using FastAPI and Celery
+Serving LLM(Large Language Model) Using FastAPI and Celery. This repository contains FastAPI server. If you want to see celery worker code, refer to [LLM-Worker](https://github.com/ainize-team/LLM-Worker) repository
 
-## How to Server
+## How to Run
 
-### Celery Worker
+1. run celery worker
 
-- **Use Redis as backend and RabbitMQ as broker**
+- How to run celery worker is in [LLM-Worker](https://github.com/ainize-team/LLM-Worker) repository.
 
-1. build docker file
+2. build docker file
 
-```
+```shell
 git clone https://github.com/ainize-team/LLM-FastAPI.git
 cd LLM-FastAPI
-docker build -t fastapi-llm .
+docker build -t llm-fastapi .
 ```
 
-2. run docker image
+3. run docker image
 
 - **Environment Variable**
 
@@ -24,29 +24,37 @@ docker build -t fastapi-llm .
   - `REDIS_HOST`= default : "localhost"
   - `REDIS_PORT`= default : 6379
   - `REDIS_DB`= default : 0
-  - `REDIS_PASSWORD`= default ""
+  - `REDIS_PASSWORD`= default : ""
   - `BROKER_URI`= **Required**
-  - `NUMBER_OF_WORKERS`= default : NUM of CPU cores
+  - `NUMBER_OF_WORKERS`= default : # of CPU cores
 
-- Must use same `broker_uri` and `backend_uri` with Worker
-- **RabbitMQ broker uri**: `ampq://<user>:<password>@<hostname>:<port>/<vhost>`
-- **Redis backend uri**: `redis://:<password>@<hostname>:<port>/<db>`
+- You must use same following `broker_uri` and `backend_uri` to connect to celery worker
+  - RabbitMQ broker uri: `ampq://<user>:<password>@<hostname>:<port>/<vhost>`
+  - Redis backend uri: `redis://:<password>@<hostname>:<port>/<db>`
 - If you use this code in linux and same sequence of this docs, maybe hostname is `172.17.0.1`, in macOS, `host.docker.internal`
-- Radis port : 6379, RabbitMQ port : 5672
 
-```
-docker run -d --name {fastapi_container_name} -p {port}:8000
--e APP_NAME={app_name} -e BROKER_URI={broker_uri}
--e REDIS_HOST=<redis_hostname> -e REDIS_PORT=<redis_port>
--e REDIS_DB=<redis_db> -e REDIS_PASSWORD=<redis_password>
--e NUMBER_OF_WORKERS=<num> fastapi-llm
-```
+  ```shell
+  docker run -d --name <fastapi_container_name> -p <port>:8000 \
+  -e APP_NAME=<app_name> -e BROKER_URI=<broker_uri> \
+  -e REDIS_HOST=<redis_hostname> -e REDIS_PORT=<redis_port> \
+  -e REDIS_DB=<redis_db> -e REDIS_PASSWORD=<redis_password> \
+  -e NUMBER_OF_WORKERS=<num> llm-fastapi
+  ```
+
+  Or you can use the [.env file](./.env.sample) to run as follows.
+
+  ```shell
+  docker run -d --name <fastapi_container_name> -p <port>:8000 \
+  --env-file <env_file_path> llm-fastapi
+  ```
 
 ## How to Test
 
+You can test the server when celery worker run together.
+
 ### Use curl
 
-1. First, request by POST
+1. Request by POST with prompt
 
 ```
 curl --location --request POST "http://localhost:<port>/generate" --header "Content-Type: application/json" --data-raw '{"prompt": "My name is"}'
@@ -54,31 +62,31 @@ curl --location --request POST "http://localhost:<port>/generate" --header "Cont
 
 - This will return `task_id`
 
-2. Next, request by GET
+2. Get results using task id
 
 ```
-curl -X GET "http://localhost:8000/result/{task_id}"
+curl -X GET "http://localhost:<port>/result/<task_id>"
 ```
 
 - This will return `status` with `result`
-- `status` is this
+- Possible types of `status`
 
-```python
-# llm_fastapi/enums.py
-class ResponseStatusEnum(StrEnum):
-    PENDING: str = "pending"
-    ASSIGNED: str = "assigned"
-    COMPLETED: str = "completed"
-    ERROR: str = "error"
-```
+  ```python
+  # src/enums.py
+  class ResponseStatusEnum(StrEnum):
+      PENDING: str = "pending"
+      ASSIGNED: str = "assigned"
+      COMPLETED: str = "completed"
+      ERROR: str = "error"
+  ```
 
-- If status is `"assigned"`, try again and again.
+- If status is `"assigned"`, the task is in progress. try again later.
 
-### Use FastAPI docs
+### Swagger API Docs
 
 - Check `http://localhost:<port>/docs` and `http://localhost:<port>/redoc`
-- In `docs`, you can test this easily.
-- In `redoc`, you can check request form.
+  - In `docs`, you can test this easily.
+  - In `redoc`, you can check request form.
 
 ## Test example
 
